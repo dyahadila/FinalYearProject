@@ -1,0 +1,127 @@
+<div class="header" ng-init="initFirst()">
+	<span>{{ semester }}</span>&nbsp<span class="ntuweek">{{ ntuWeek }}</span>&nbsp
+	<button type="button" class="btn btn-default" ng-click="prevWeek()"><i class="fa fa-chevron-left" aria-hidden="true" ></i></button>
+	<button type="button" class="btn btn-default" ng-click="nextWeek()"><i class="fa fa-chevron-right" aria-hidden="true" ></i></button>
+</div>
+<nav class="navbar navbar-default">
+<div class="container-fluid">
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="#/monthly">Month</a></li>
+      <li><a href="#/weekly">Week</a></li>
+    </ul>
+  </div>
+</nav>
+<table class="table table-bordered">
+    <tr>
+        <td></td>
+            <td id="daysHeader" ng-repeat="day in daysArray">
+                {{ daysInWeek[$index] }} &nbsp<span class="date">{{day}}</span>
+            </td>
+    </tr>
+		<tr ng-repeat="hour in hours" class="daysWeeklytr">
+			<td class="hoursColumntd" dragula='"first-bag"' dragula-scope="$parent" dragula-model="day">{{hour}}</td>
+			<td class="daysWeekly" id="{{ hour }}{{ day }}" ng-repeat="day in daysArray" ng-click="convert(day,hour)" dragula='"first-bag"' dragula-scope="$parent" drop-model="day">
+            <ul
+            class="list-group fa-ul" 
+            ng-repeat="task in tasks | filter:day" 
+            ng-switch="task.taskType"
+            dragula='"first-bag"'
+            >
+                <li 
+                ng-class="{'list-group-item urgent' : task.done==0, 'list-group-item disabled' : task.done==1}"
+                id="{{ task.taskId }}"
+                ng-if="check1(task.startTime,hour)"
+                ng-switch-when="urgent" 
+                ng-style="{height: getStyle(task.duration)}" 
+                ng-click="disable($event, task.taskId)" 
+                uib-popover-template="popover.templateUrl" 
+                popover-placement="left-top"
+                ng-mousedown="mouseDown()"
+                ng-mouseup="mouseUp()">
+                    <i class="fa-li fa fa-star" aria-hidden="true"></i><span class="taskname">{{task.taskName}}</span>
+                </li>
+                <li 
+                ng-class="{'list-group-item important' : task.done==0, 'list-group-item disabled' : task.done==1}"
+                id="{{ task.taskId }}"
+                ng-if="check1(task.startTime,hour)"
+                ng-switch-when="important" 
+                ng-style="{height: getStyle(task.duration)}" 
+                ng-click="disable($event, task.taskId)" 
+                uib-popover-template="popover.templateUrl" 
+                popover-placement="left-top"
+                ng-mousedown="mouseDown()"
+                ng-mouseup="mouseUp()">
+                    <i class="fa-li fa fa-exclamation-circle" aria-hidden="true"></i><span class="taskname">{{task.taskName}}</span>
+                </li>
+                <li 
+                ng-class="{'list-group-item normal' : task.done==0, 'list-group-item disabled' : task.done==1}"
+                id="{{ task.taskId }}"
+                ng-if="check1(task.startTime,hour)"
+                ng-switch-when="normal" 
+                ng-style="{height: getStyle(task.duration)}" 
+                ng-click="disable($event, task.taskId)" 
+                uib-popover-template="popover.templateUrl" 
+                popover-placement="left-top"
+                ng-mousedown="mouseDown()"
+                ng-mouseup="mouseUp()">
+                    <i class="fa-li fa fa-circle-o" aria-hidden="true"></i><span class="taskname">{{task.taskName}}</span>
+                </li>
+            </ul>
+            </td>
+		</tr>
+</table>
+<div id="trashcan" dragula='"first-bag"'>
+    <img src="trashcan.png" height="142" width="122" ng-show="trash">
+</div>
+<script type="text/ng-template" id="popoverTemplate.html">
+    <div class="form-group" id="formcomplete">
+        <label ng-click="$event.stopPropagation()" id="test"><input type="checkbox" ng-click="check($event, task.taskId)" ng-checked="getChecked(task.done)"><span id="markcomplete">&nbspMark Task Completed</span></label><br><br>
+        <input type="submit" class="btn btn-success btn-sm" ng-click="markcomplete($event, task.taskId)" value="Save" id="completebtn">
+    </div>
+</script>
+<script type="text/ng-template" id="weeklyModal.html">
+	<div class="modal-header">
+        <h3>{{originalDate}}</h3>
+    </div>
+    <div class="modal-body">
+    <div class="form-group">
+        <form>
+        	<label for="taskName">Task name:</label>
+        	<input type="text" name="taskName" id="taskName" class="form-control" placeholder="Enter task name" ng-model="taskname"><br>
+            <div class="form-group">
+            <label>Type:</label>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="type" value="urgent" ng-model="type.name">&nbsp<span class="urgent">Urgent&nbsp&nbsp<i class="fa fa-star" aria-hidden="true"></i></span>
+                    </label>
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="type" value="important" ng-model="type.name">&nbsp<span class="important">Important&nbsp&nbsp<i class="fa fa-exclamation-circle" aria-hidden="true"></i></span>
+                    </label>
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="type" value="normal" ng-model="type.name">&nbsp<span class="normal">Normal&nbsp&nbsp<i class="fa fa-exclamation-circle" aria-hidden="true"></i></span>
+                    </label>
+                </div>
+            </div>
+        	<input type="hidden" name="taskdate" id="taskdate" class="form-control" data-ng-model="taskdate">
+        	<label for="startTime">Start time:</label>
+        	<input type="test" name="startTime" id="startTime" class="form-control" ng-model="starttime"><br>
+        	<label id="duration">Duration:</label><br>
+            <div class="col-md-5">
+        	<div class="input-group">    
+        		<span class="input-group-addon" ng-click="subDuration()" id="sizing-addon2"><i class="glyphicon glyphicon-minus"></i></span>
+                <input type="text" id="durationHour" class="form-control" ng-model="durationDisplay" aria-describedby="sizing-addon2">
+                <span class="input-group-addon" ng-click="addDuration()" id="sizing-addon2"><i class="glyphicon glyphicon-plus"></i></span>
+			</div></div><br><br><br>
+        </form>
+        <input type="submit" class="btn btn-success btn-sm" ng-click="saveTask()" value="Save Task!" name="saveTask">
+    </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">OK</button>
+        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+    </div>
+</script>

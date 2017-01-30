@@ -1,27 +1,29 @@
 body{
 	font-family: Verdana;
 }
-.table{
-	width:100%;
-    height:100%;
-    border:none;
-}
 .days{
-	height:110px;
+	height:150px;
 	margin:0px;
     padding:0px;
     overflow: hidden;
     font-family: helvetica;
+}
+.date{
+	font-size: 11px;
+	font-weight: normal;
 }
 .header{
 	height:70px;
 	text-align: center;
 	line-height:70px;
 	font-size: 20px;
-	background-color: #004b66;
+	background-color: #07889B;
 	color: white;
-	border-bottom-color: #004b66;
+	border-bottom-color: #07889B;
 	font-family: helvetica;
+}
+.ntuweek{
+	font-size: 13px;
 }
 #daysHeader{
 	border-left: none;
@@ -34,7 +36,7 @@ body{
     font-family: helvetica;
 }
 .highlight:hover{
-	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+	cursor: pointer;
 }
 .fa-chevron-left{
 	margin-right: 5px;
@@ -42,11 +44,10 @@ body{
 .fa-chevron-right{
 	margin-left: 5px;
 }
-#acadWeek{
+.acadWeek{
 	border:none;
 	font-size: 12px;
 	background-color: #F5F5F5;
-	width: 8%;
 	font-family: helvetica;
 }
 #acadWeekHeader{
@@ -54,7 +55,7 @@ body{
 	border-collapse:collapse;
 	margin: 0px;
 	background-color: #F5F5F5;
-	width: 8%;
+	width: 6%;
 	font-family: helvetica;
 	background-color: white;
 }
@@ -70,7 +71,7 @@ body{
 	color: green;
 }
 .modal-header{
-	background-color: #004b66;
+	background-color: #07889B;
 	color: white;
 	height: 75px;
 	line-height: 95px;
@@ -86,8 +87,156 @@ body{
 }
 .navbar-default{
 	font-size: 12px;
-	height: 20px;
+	height: 8px;
 	overflow: hidden;
 	margin: 0;
+	background-color: white;
+}
+.navbar-default ul{
+	margin: 0;
+}
+.navbar-default li:hover{
+	background-color: #F5F5F5;
+}
+.input-group-addon:hover{
+	cursor: pointer;
+}
+.activitynames{
+	font-size: 10px;
+	margin: 0px;
+	float:left;
+}
+.datetimes{
+	font-size: 10px;
+	margin: 0px;
+	float:right;
+}
+.list-group-item.list-group-item-warning, .list-group-item.list-group-item-danger, 
+.list-group-item.list-group-item-success, .list-group-item.list-group-item-info{
+	display: inline-block;
+	width: 100%;
+	height: 28px;
+	padding: 10px;
+	padding-top: 5px;
+	padding-bottom: 2px;
+}
+.daysWeekly{
+	height: 50px;
+	width: 10%;
+}
+.daysWeeklytr{
+	height: 50px;
+}
+#addActivityWeekly{
+	height: 35px;
+}
+#addActivityWeekly:hover{
+	background-color: #f2f2f2;
+	cursor: pointer;
+}
+.modal-body ul li{
+	margin-bottom:10px;
+}
+.modal-body{
+	padding: 20px;
+}
+.modal-content {
+	border-radius: 8px;
+}
+nav .form-control{
+	margin-top:6px;
+	height: 25px;
+	font-size: 11px;
+}
+.form-control{
+	height: 30px;
+}
+#addActivityMonthForm label{
+	font-size: 13px;
+}
+.hoursColumntd{
 	text-align: right;
+	width: 4%;
+	border:none;
+	font-size: 12px;
+	font-family: helvetica;
+}
+#daysWeekly:hover{
+	cursor: pointer;
+}
+.col-md-5{
+	padding:0 ;
+}
+.list-group{
+	margin:0;
+	padding: 0;
+}
+.list-group.fa-ul{
+	margin:0;
+}
+.taskname{
+	font-size: 11px;
+	margin-left: 10px;
+}
+.fa-li{
+	margin-left: 28px;
+	margin-top: 10px;
+}
+.list-group-item.urgent{
+	background-color: #E37222;
+	color: white;
+	padding-bottom: 0px;
+	position: absolute;
+	width: 153px;
+	display:inline-block;
+}
+.list-group-item.important{
+	background-color: #66B9BF;
+	color: white;
+	padding-bottom: 0px;
+	position: absolute;
+	width: 152px;
+	display:inline-block;
+}
+.list-group-item.disabled{
+	padding-bottom: 0px;
+	position: absolute;
+	width: 152px;
+	display:inline-block;
+}
+.list-group-item.normal{
+	background-color: #F7B733;
+	color: white;
+	padding-bottom: 0px;
+	position: absolute;
+	width: 152px;
+	display:inline-block;
+}
+#markcomplete{
+	font-weight: normal;
+	margin:0;
+}
+#completebtn{
+	margin-top: 0px;
+}
+#test{
+	margin:0;
+	margin-bottom: 0;
+}
+#formcomplete{
+	padding: 0;
+}
+.urgent{
+	background-color: #E37222;
+}
+.important{
+	background-color: #66B9BF;
+}
+.normal{
+	background-color: #FFCE00;
+}
+#trashcan{
+    position: fixed;
+    bottom: 20px;
+    right:30px;
 }
