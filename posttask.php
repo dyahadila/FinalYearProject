@@ -7,7 +7,8 @@ if(count($data) > 0){
 	$taskdate = $data->taskdate;
 	$time = $data->starttime;
 	$duration = $data->duration;
-    $query = "INSERT INTO activityWeek VALUES ('', '".$taskname."', '".$tasktype."', '".$time."', ".$duration.", '".$taskdate."',0)";
+	$userID = $data->userID;
+    $query = "INSERT INTO activityWeek VALUES ('', '".$taskname."', '".$tasktype."', '".$time."', ".$duration.", '".$taskdate."',0,".$userID.")";
     $result = $dbcnx->query($query);
     echo $result;
 }

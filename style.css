@@ -1,6 +1,48 @@
 body{
 	font-family: Verdana;
 }
+#wrapper{
+	background-size: cover;
+	background-position: center;
+	background-image: url("gaussian.jpg");
+	background-repeat: no-repeat;
+	min-height: 100%;
+  	min-width: 1024px;
+  	width: 100%;
+  	height: auto;
+  	position: fixed;
+  	top: 0;
+  	left: 0;
+}
+#logintop{
+	margin-top:30px;
+}
+#signIn{
+	text-align: center;
+	font-family: 'Roboto', sans-serif;
+	font-size: 20px;
+	font-weight: bold;
+}
+.form-group{
+	text-align: left;
+	font-family: 'Roboto', sans-serif;
+}
+#loginbox{
+	width: 400px;
+	height: 300px;
+	background-color: white;
+    position: absolute;
+    top:0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    padding: 20px;
+    border-radius: 10px;
+}
+.currentDay{
+	background-color: rgba(7, 136, 155,0.2);
+}
 .days{
 	height:150px;
 	margin:0px;
@@ -21,6 +63,12 @@ body{
 	color: white;
 	border-bottom-color: #07889B;
 	font-family: helvetica;
+}
+.btn.btn-warning{
+	float: right;
+	clear: both;
+	margin-top:10px;
+	margin-right: 10px;
 }
 .ntuweek{
 	font-size: 13px;
@@ -79,12 +127,6 @@ body{
 .timepicker{
 	width:150px;
 }
-.activityname{
-	font-size: 15px;
-}
-.datetime{
-	font-size: 12px;
-}
 .navbar-default{
 	font-size: 12px;
 	height: 8px;
@@ -109,23 +151,36 @@ body{
 .datetimes{
 	font-size: 10px;
 	margin: 0px;
-	float:right;
+	float: left;
 }
 .list-group-item.list-group-item-warning, .list-group-item.list-group-item-danger, 
 .list-group-item.list-group-item-success, .list-group-item.list-group-item-info{
 	display: inline-block;
 	width: 100%;
-	height: 28px;
+	height: 45px;
 	padding: 10px;
 	padding-top: 5px;
 	padding-bottom: 2px;
+}.trash:hover{
+	cursor: pointer;
+}
+#trash{
+	float: right;
+}
+#trash:hover{
+	cursor:pointer;
 }
 .daysWeekly{
 	height: 50px;
 	width: 10%;
+	background-color: white;
+	border: 1px solid black;
 }
-.daysWeeklytr{
+.currentDayinWeek{
 	height: 50px;
+	width: 10%;
+	background-color: rgba(7, 136, 155,0.2);
+	border: 100px solid black;
 }
 #addActivityWeekly{
 	height: 35px;
@@ -161,7 +216,7 @@ nav .form-control{
 	font-size: 12px;
 	font-family: helvetica;
 }
-#daysWeekly:hover{
+.daysWeekly:hover{
 	cursor: pointer;
 }
 .col-md-5{
@@ -173,6 +228,8 @@ nav .form-control{
 }
 .list-group.fa-ul{
 	margin:0;
+	position: relative;
+	width: auto;
 }
 .taskname{
 	font-size: 11px;
@@ -187,7 +244,7 @@ nav .form-control{
 	color: white;
 	padding-bottom: 0px;
 	position: absolute;
-	width: 153px;
+	width: 152px;
 	display:inline-block;
 }
 .list-group-item.important{
@@ -235,8 +292,8 @@ nav .form-control{
 .normal{
 	background-color: #FFCE00;
 }
-#trashcan{
-    position: fixed;
-    bottom: 20px;
-    right:30px;
+#save, #cancel{
+	display:inline-block;
+	margin: 0;
+	margin-left:10px;
 }

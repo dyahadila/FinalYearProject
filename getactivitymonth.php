@@ -1,7 +1,10 @@
 <?php
 include 'dbconnect.php';
-$matcher = $_GET['matcher'];
-$query = "SELECT * FROM activityMonth where activityMonthYear='".$matcher."'";
+$data = json_decode(file_get_contents("php://input"));
+if(count($data) > 0){
+$matcher = $data->matcher;
+$userID = $data->userID;
+$query = "SELECT * FROM activityMonth where activityFullDate LIKE'%".$matcher."%' AND userID=".$userID;
 $result = $dbcnx->query($query);
 $num_results = $result->num_rows;
 if($num_results > 0){
@@ -10,4 +13,5 @@ if($num_results > 0){
 	}
 	echo json_encode($output);
 } 
+}
 ?>

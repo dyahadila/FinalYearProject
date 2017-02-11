@@ -2,6 +2,7 @@
 	<span>{{ printedMonth }}</span> &nbsp
 	<button type="button" class="btn btn-default" ng-click="previousMonth()"><i class="fa fa-chevron-left" aria-hidden="true"></i></button>
 	<button type="button" class="btn btn-default" ng-click="nextMonth()"><i class="fa fa-chevron-right" aria-hidden="true" ></i></button>
+	<button type="button" class="btn btn-warning btn-sm" ng-click="logout()">Log Out</button>
 </div>
 <nav class="navbar navbar-default">
 <div class="container-fluid">
@@ -29,44 +30,42 @@
 		</thead>
 		<tbody>
 			<tr class="days" ng-repeat="week in daysArray">
-				<td class="acadWeek" dragula='"second-bag"' dragula-scope="$parent">{{weeksArray[$index]}}</td>
-				<td id="{{day}}" ng-repeat="day in week track by $index" ng-class="{'greyOut':isNumber(day), 'highlight':isString(day)}" ng-click="check(day)" dragula='"second-bag"' dragula-scope="$parent">
+				<td class="acadWeek">{{weeksArray[$index]}}</td>
+				<td id="{{day}}" ng-repeat="day in week track by $index" ng-class="{'greyOut':isNumber(day), 'highlight':isString(day), 'currentDay':isCurrentDay(day)}" ng-click="check(day)" dragula='"second-bag"' dragula-scope="$parent">
 					<div ng-show="isString(day) == true">{{day}}</div>
 					<div ng-show="isNumber(day) == true">{{day}}</div>
-					<ul class="list-group">
-				        <div ng-repeat="activity in activitiesmonth | filter: {activityDate: day} : true" ng-switch="activity.activityType" dragula='"second-bag"'>
-					        <li class="list-group-item list-group-item-warning" ng-switch-when="Quiz and Exam" id="{{ activity.activityID }}" ng-mousedown="mouseDown()" ng-mouseup="mouseUp()">
-								<span class="activitynames">{{activity.activityName}}</span>
-								<span class="datetimes">{{activity.activityTime}}</span>
-							</li>
-							<li class="list-group-item list-group-item-danger" ng-switch-when="Assignment Deadline" id="{{ activity.activityID }}" ng-mousedown="mouseDown()" ng-mouseup="mouseUp()">
-								<span class="activitynames">{{activity.activityName}}</span>
-								<span class="datetimes">{{activity.activityTime}}</span>
-							</li>
-							<li class="list-group-item list-group-item-success" ng-switch-when="CCA Activity" id="{{ activity.activityID }}" ng-mousedown="mouseDown()" ng-mouseup="mouseUp()">
-								<span class="activitynames">{{activity.activityName}}</span>
-								<span class="datetimes">{{activity.activityTime}}</span>
-							</li>
-							<li class="list-group-item list-group-item-info" ng-switch-when="Leisure Activities and Other" id="{{ activity.activityID }}" ng-mousedown="mouseDown()" ng-mouseup="mouseUp()">
-								<span class="activitynames">{{activity.activityName}}</span>
-								<span class="datetimes">{{activity.activityTime}}</span>
-							</li>
-				        </div>
+					<ul class="list-group" ng-repeat="activity in activitiesmonth | filter:filterDate(day)" ng-switch="activity.activityType" dragula='"second-bag"' dragula-scope="$parent">
+					    <li class="list-group-item list-group-item-warning" ng-switch-when="Quiz and Exam" id="{{ activity.activityID }}">
+					    	<span clas="trash" ng-click="deleteActivity(activity.activityID, $event)"><i class="fa fa-trash" aria-hidden="true"></i></span>
+							<span class="activitynames">{{activity.activityName}}</span><br>
+							<span class="datetimes">{{activity.activityTime}}</span>
+						</li>
+						<li class="list-group-item list-group-item-danger" ng-switch-when="Assignment Deadline" id="{{ activity.activityID }}">
+							<span clas="trash" ng-click="deleteActivity(activity.activityID, $event)"><i class="fa fa-trash" aria-hidden="true"></i></span>
+							<span class="activitynames">{{activity.activityName}}</span><br>
+							<span class="datetimes">{{activity.activityTime}}</span>
+						</li>
+						<li class="list-group-item list-group-item-success" ng-switch-when="CCA Activity" id="{{ activity.activityID }}">
+							<span clas="trash" ng-click="deleteActivity(activity.activityID, $event)"><i class="fa fa-trash" aria-hidden="true"></i></span>
+							<span class="activitynames">{{activity.activityName}}</span><br>
+							<span class="datetimes">{{activity.activityTime}}</span>
+						</li>
+						<li class="list-group-item list-group-item-info" ng-switch-when="Leisure Activities and Other" id="{{ activity.activityID }}">
+							<span clas="trash" ng-click="deleteActivity(activity.activityID, $event)"><i class="fa fa-trash" aria-hidden="true"></i></span>
+							<span class="activitynames">{{activity.activityName}}</span><br>
+							<span class="datetimes">{{activity.activityTime}}</span>
+						</li>
 			        </ul>
 				</td>
 			</tr>
 		</tbody>
 </table>
-<div id="trashcan" dragula='"second-bag"'>
-    <img src="trashcan.png" height="122" width="102" ng-show="trash">
-</div>
 <script type="text/ng-template" id="myModalContent.html">
     <div class="modal-header">
         <h3>{{printDate}}</h3>
     </div>
         <div class="modal-body">
-        <a href="#" ng-click="addActivity = !addActivity" class="btn btn-link">Add Activity <i class="fa fa-plus" aria-hidden="true" ng-show="!addActivity"></i><i class="fa fa-minus" aria-hidden="true" ng-show="addActivity"></i></a><br>
-        	<form ng-show="addActivity" id="addActivityMonthForm">
+        	<form id="addActivityMonthForm">
         		  <div class="form-group">
 				      <label for="activityname">Activity name:</label>
 				      <input type="text" class="form-control" data-ng-model="activityname" name="activityName" id="activityName" placeholder="Enter activity name"><br>
@@ -86,11 +85,12 @@
 	            		  </span>
        				  </div>
 		          </div>
-			      <input type="submit" class="btn btn-success btn-sm" ng-click="saveActivity()" value="Save Activity!" name="saveActivity">	
             </form>
       	</div>
         <div class="modal-footer">
-            <button class="btn btn-primary" ng-click="ok()">OK</button>
+		<button type="submit" class="btn btn-success" ng-click="saveActivity()" id="save">Save</button>
+        <button class="btn btn-warning" ng-click="cancel()" id="cancel">Close</button> 
+    	</div>
         </div>
 </script>
 <script type="text/ng-template" id="popover.html">
