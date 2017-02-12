@@ -80,7 +80,7 @@ app.factory('loginFactory', ['$http','$location', 'sessionService', function($ht
 	}
 }])
 app.factory('mainFactory', function($http, moment, sessionService, $location) {
-var matcher = moment().format('YYYY-MM');
+
 var getSemester = function(weekOfYear){
 var semester;
 	if(weekOfYear>=33 && weekOfYear<54){
@@ -157,10 +157,13 @@ app.controller('loginCtrl', function($scope, $http, $location, moment, loginFact
 		loginFactory.login(formData);
 	}
 })
-app.controller('weeklyCtrl', function($scope, $uibModal, moment, $http, mainFactory, dragulaService, loginFactory, sessionService){
+app.controller('weeklyCtrl', function($scope, $interval, $uibModal, moment, $http, mainFactory, dragulaService, loginFactory, sessionService){
 //fix semester 1 vacation bug in first week of new year later
 
-$scope.tasks;
+$scope.tasks = [];
+var promise = $interval(function(){
+	$scope.getTasks();
+},500)
 $scope.logout = function(){
 	loginFactory.logout();
 }
@@ -186,7 +189,6 @@ $scope.initFirst=function(){
 	'10:00 PM', '10:30 PM','11:00 PM','11:30 PM', '12:00 AM', '12:30 AM', '1:00 AM', '1:30 AM', '2:00 AM', '2:30 AM',
 	'3:00 AM', '3:30 AM', '4:00 AM', '4:30 AM', '5:00 AM', '5:30 AM', '6:00 AM', '6:30 AM', '7:00 AM', '7:30 AM', '8:00 AM',
 	 '9:00 AM', '9:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM'];
-	$scope.getTasks();
 }
 $scope.popover = {
 	templateUrl : 'popoverTemplate.html'
@@ -200,7 +202,10 @@ $scope.disable = function($event, taskId){
 }
 
 dragulaService.options($scope, 'first-bag', {
-    revertOnSpill: true
+    revertOnSpill: true,
+    moves: function(){
+      return $scope.enabled;
+   }
 });
 $scope.$on('first-bag.drop', function (e, el, target, source, draggable){
 	if ( !draggable ) e.stopPropagation();
@@ -236,7 +241,6 @@ $scope.deleteTask = function(taskId, e){
 		    taskId : taskId
 		}
 		}).then(function(data){
-			$scope.getTasks();
 		});
 	}
 	
@@ -255,7 +259,6 @@ $scope.markcomplete = function($event, taskId){
 		        checkedbol : $scope.checked[taskId]
 		      }
 			}).then(function (data) {
-				$scope.getTasks();
 			});
 }
 $scope.getChecked = function(bol){
@@ -264,9 +267,6 @@ $scope.getChecked = function(bol){
 	} else if(bol == 0){
 		return false;
 	}
-}
-$scope.moveTask = function(taskId){
-	console.log(taskId);
 }
 var getDaysArray = function (dayInWeek, currentMoment){
 	var daysArray = [];
@@ -304,7 +304,6 @@ $scope.getTasks = function(){
 		}
 	}).success(function (data,status) {
   	    $scope.tasks = data;
-  	    console.log(data);
 	});
 }
 
@@ -315,7 +314,6 @@ $scope.nextWeek = function(){
 	$scope.daysArray = getDaysArray(dayInWeek, $scope.currentMoment);
 	$scope.semester = mainFactory.semester(weekInYear);
 	$scope.ntuWeek = mainFactory.ntuWeek(weekInYear, $scope.currentMoment);
-	$scope.getTasks();
 }
 
 $scope.prevWeek = function(){
@@ -325,7 +323,6 @@ $scope.prevWeek = function(){
 	$scope.daysArray = getDaysArray(dayInWeek, $scope.currentMoment);
 	$scope.semester = mainFactory.semester(weekInYear);
 	$scope.ntuWeek = mainFactory.ntuWeek(weekInYear, $scope.currentMoment);
-	$scope.getTasks();
 }
 $scope.convert = function(date, time){
 	$scope.originalDate = moment(new Date(date)).format('DD MMMM YYYY');
@@ -343,7 +340,9 @@ $scope.convert = function(date, time){
 	else{
 		$scope.starttime = time.substring(0, index) + ':00 ' + time.substring(index+1, time.length);
 	}
-	$scope.showModal();
+	if($scope.enabled == false){
+		$scope.showModal();
+	}
 }
 $scope.showModal = function(){
 	var modalInstance = $uibModal.open({
@@ -392,11 +391,8 @@ var weeklyModalCtrl = function ($scope, $uibModalInstance, $http){
 				}).then(function (data) {
 				    $scope.taskname = null;
 				    $scope.tasks = data;
-				    $scope.getTasks();
 				    alert('Task added successfully');
 				}, function (response) {
-					$scope.getTasks();
-				   console.log(response.data,response.status);
 		        });
 		    $uibModalInstance.close();
 		}
@@ -407,19 +403,37 @@ $scope.check1 = function(time, hour){
 		return true;
 	}	 
 }
-
+$scope.enabled = false;
+$scope.enable = function(){
+	$scope.enabled = !$scope.enabled;
+	if($scope.enabled == true){
+		$interval.cancel(promise);
+		alert("This mode enables drag and drop but disables add and delete activity");
+	} else {
+		promise = $interval(function(){
+			$scope.getTasks();
+		},500);
+		alert("Drag & Drop mode disabled");
+	}
+}
 $scope.getStyle = function(duration){
 	var height = (((duration*2)-1)*50)+35;
 	return height.toString() +'px';
 }
 });
 
-app.controller('monthlyCtrl', function($scope, $uibModal, moment, $filter, $http, mainFactory, dragulaService, loginFactory, sessionService){
+app.controller('monthlyCtrl',['$scope', '$interval', '$uibModal', 'moment', '$filter', '$http', 'mainFactory', 'dragulaService', 'loginFactory', 'sessionService',
+ function($scope, $interval, $uibModal, moment, $filter, $http, mainFactory, dragulaService, loginFactory, sessionService){
 $scope.logout = function(){
 	loginFactory.logout();
 }
+$scope.activitiesmonth = [];
+var promise = $interval(function(){
+	$scope.getActivityMonth();
+},500);
 $scope.getActivityMonth = function(){
 	var userID = sessionService.get('user');
+	var matcher = moment().format('YYYY-MM');
 	$http({
 		method: 'POST',
 		url:  'getactivitymonth.php',
@@ -458,7 +472,6 @@ $scope.initFirst=function()
 	for(var i = 1; i<=4; i++){
 		$scope.years.push(moment($scope.currentMoment).add(i, 'year').format('YYYY'));
 	}
-	$scope.getActivityMonth();
 }
 $scope.submit = function(){
 	if($scope.selectedMonth && $scope.selectedYear){
@@ -471,7 +484,6 @@ $scope.submit = function(){
 		$scope.weeksArray = getDateAndWeekArray($scope.startAndEndArray[0], $scope.startAndEndArray[2], $scope.startAndEndArray[3], $scope.currentMoment)[1];
 		$scope.semester = getDateAndWeekArray($scope.startAndEndArray[0], $scope.startAndEndArray[2], $scope.startAndEndArray[3], $scope.currentMoment)[2];
 		$scope.matcher = $scope.currentMoment.format('YYYY-MM');
-		$scope.getActivityMonth();
 	}
 }
 
@@ -617,7 +629,6 @@ $scope.previousMonth = function() {
 	$scope.weeksArray = getDateAndWeekArray($scope.startAndEndArray[0], $scope.startAndEndArray[2], $scope.startAndEndArray[3], $scope.currentMoment)[1];
 	$scope.semester = getDateAndWeekArray($scope.startAndEndArray[0], $scope.startAndEndArray[2], $scope.startAndEndArray[3], $scope.currentMoment)[2];
 	$scope.matcher = $scope.currentMoment.format('YYYY-MM');
-	$scope.getActivityMonth();
 }
 
 $scope.nextMonth = function() {
@@ -628,7 +639,6 @@ $scope.nextMonth = function() {
 	$scope.weeksArray = getDateAndWeekArray($scope.startAndEndArray[0], $scope.startAndEndArray[2], $scope.startAndEndArray[3], $scope.currentMoment)[1];
 	$scope.semester = getDateAndWeekArray($scope.startAndEndArray[0], $scope.startAndEndArray[2], $scope.startAndEndArray[3], $scope.currentMoment)[2];
 	$scope.matcher = $scope.currentMoment.format('YYYY-MM');
-	$scope.getActivityMonth();
 }
 
 $scope.check = function(day){
@@ -643,14 +653,16 @@ $scope.open = function (day) {
 		day = '0' + day;
 	}
 	$scope.momentClicked = currentMonthAndYear + '-' + day;
-	var modalInstance = $uibModal.open({
-		templateUrl: 'myModalContent.html',
-	    controller: ModalInstanceCtrl,
-	    scope: $scope
-	});
+	if($scope.enabled == false){
+		var modalInstance = $uibModal.open({
+			templateUrl: 'myModalContent.html',
+			controller: ModalInstanceCtrl,
+			scope: $scope
+		});
+	}
+	
 };
 
-$scope.initFirst();
 var ModalInstanceCtrl = function ($scope, $uibModalInstance, $http) {
 	$scope.matcher = moment().format('YYYY-MM');
 	$scope.mytime = new Date().setHours(12,0,0,0);
@@ -669,6 +681,12 @@ var ModalInstanceCtrl = function ($scope, $uibModalInstance, $http) {
 	};
 
 	$scope.saveActivity = function(){
+		var matcher = moment().format('YYYY-MM');
+		if(promise == null){
+			var promise = $interval(function(){
+				$scope.getActivityMonth();
+			}.bind(this),500)
+		}
 		if($scope.activityname == null || $scope.activitytype == null){
 			alert("Please complete the form!");
 		} else {
@@ -681,10 +699,11 @@ var ModalInstanceCtrl = function ($scope, $uibModalInstance, $http) {
 		            activitytype : $scope.activitytype,
 		            date : $scope.momentClicked,
 		            time : $scope.hour,
-		            userID : userID
+		            userID : userID,
+		            matcher : matcher
 		        }
-				}).success(function (response) {
-				    $scope.getActivityMonth();
+				}).then(function (response, data) {
+									
 				});
 				$uibModalInstance.close();
 			}
@@ -713,24 +732,38 @@ var convertDateTimeFormat = function(date, time){
 }
 $scope.deleteActivity = function(activityId, e){
 	e.stopPropagation();
-	if(confirm("Are you sure you want to delete this activity?")==true){
+	if(confirm("Are you sure you want to delete this activity?") == true){
 		$http({
-		method: 'POST',
-		url:  'deleteActivity.php',
-	    data: {
-	        activityID : activityId
-		}
-		}).success (function (data,status){
-			$scope.getActivityMonth();
+			method: 'POST',
+			url:  'deleteActivity.php',
+			data: {
+			     activityID : activityId
+			}
+		}).then(function (data,status){
 		});
+	}
+}
+$scope.enabled = false;
+$scope.enable = function(){
+	$scope.enabled = !$scope.enabled;
+	if($scope.enabled == true){
+		$interval.cancel(promise);
+		alert("This mode enables drag and drop but disables add and delete activity");
+	} else {
+		promise = $interval(function(){
+			$scope.getActivityMonth();
+		},500);
+		alert("Drag & Drop mode disabled");
 	}
 }
 dragulaService.options($scope, 'second-bag', {
     revertOnSpill: true,
-    copy: false,
-    delay: false
+     moves: function(){
+      return $scope.enabled;
+   }
 });
-$scope.$on('second-bag.drop', function (e, el, target, source){
+$scope.$on('second-bag.drop', function (e, el, target, source, draggable){
+	if ( !draggable ) e.stopPropagation();
 	var activityDate = target.attr('id');
 	var activityID = parseInt(el.attr('id'));
 	var currentMonthAndYear = moment($scope.currentMoment).format('YYYY-MM');
@@ -748,4 +781,4 @@ $scope.$on('second-bag.drop', function (e, el, target, source){
 	}
 });
 })
-	});
+	}]);

@@ -10,6 +10,7 @@
       <li><a href="#/monthly">Month</a></li>
       <li><a href="#/weekly">Week</a></li>
     </ul>
+    <button class="btn btn-primary btn-sm" ng-click="enable()" id="enable"><span ng-if="!enabled">Enable</span><span ng-if="enabled">Disable</span> Drag & Drop Mode</button> 
   </div>
 </nav>
 <table class="table table-bordered">
@@ -38,7 +39,7 @@
                 uib-popover-template="popover.templateUrl" 
                 popover-placement="left-top">
                     <i class="fa-li fa fa-star" aria-hidden="true"></i><span class="taskname">{{task.taskName}}</span>
-                    <span id="trash" ng-click="deleteTask(task.taskId, $event)"><i class="fa fa-trash" aria-hidden="true"></i></span>
+                    <span id="trash" ng-click="deleteTask(task.taskId, $event)" ng-if="!enabled"><i class="fa fa-trash" aria-hidden="true"></i></span>
                 </li>
                 <li 
                 ng-class="{'list-group-item important' : task.done==0, 'list-group-item disabled' : task.done==1}"
@@ -50,7 +51,7 @@
                 uib-popover-template="popover.templateUrl" 
                 popover-placement="left-top">
                     <i class="fa-li fa fa-exclamation-circle" aria-hidden="true"></i><span class="taskname">{{task.taskName}}</span>
-                    <span id="trash" ng-click="deleteTask(task.taskId, $event)"><i class="fa fa-trash" aria-hidden="true"></i></span>
+                    <span id="trash" ng-click="deleteTask(task.taskId, $event)" ng-if="!enabled"><i class="fa fa-trash" aria-hidden="true"></i></span>
                 </li>
                 <li 
                 ng-class="{'list-group-item normal' : task.done==0, 'list-group-item disabled' : task.done==1}"
@@ -62,15 +63,12 @@
                 uib-popover-template="popover.templateUrl" 
                 popover-placement="left-top">
                     <i class="fa-li fa fa-circle-o" aria-hidden="true"></i><span class="taskname">{{task.taskName}}</span> 
-                    <span id="trash" ng-click="deleteTask(task.taskId, $event)"><i class="fa fa-trash" aria-hidden="true"></i></span>
+                    <span id="trash" ng-click="deleteTask(task.taskId, $event)" ng-if="!enabled"><i class="fa fa-trash" aria-hidden="true"></i></span>
                 </li>
             </ul>
             </td>
 		</tr>
 </table>
-<div id="trashcan" dragula='"first-bag"'>
-    <img src="trashcan.png" height="142" width="122" ng-show="trash">
-</div>
 <script type="text/ng-template" id="popoverTemplate.html">
     <div class="form-group" id="formcomplete">
         <label ng-click="$event.stopPropagation()" id="test"><input type="checkbox" ng-click="check($event, task.taskId)" ng-checked="getChecked(task.done)"><span id="markcomplete">&nbspMark Task Completed</span></label><br><br>
