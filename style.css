@@ -161,14 +161,13 @@ body{
 	padding: 10px;
 	padding-top: 5px;
 	padding-bottom: 2px;
-}.trash:hover{
-	cursor: pointer;
+}
+.list-group-item.list-group-item-warning:hover, .list-group-item.list-group-item-danger:hover, 
+.list-group-item.list-group-item-success:hover, .list-group-item.list-group-item-info:hover{
+	cursor: move;
 }
 #trash{
 	float: right;
-}
-#trash:hover{
-	cursor:pointer;
 }
 .daysWeekly{
 	height: 50px;
@@ -299,4 +298,15 @@ nav .form-control{
 }
 #enable{
 	margin-top: 8px;
+}
+.day{
+	font-size : 12px;
+}
+.night{
+	background-color: #0375B4;
+	color: white;
+}
+.morning{
+	background-color: white;
+	color: black;
 }

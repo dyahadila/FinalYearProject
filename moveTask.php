@@ -5,7 +5,7 @@ if(count($data) > 0){
 	$taskId = $data->taskId;
 	$hour = $data->hour;
 	$day = $data->day;
-    $query = "UPDATE activityWeek SET startTime='".$hour."', taskDate='".$day."' WHERE taskId=".$taskId;
+    $query = "UPDATE activityWeek SET startTime='".$hour."', taskDate='".$day."', notified = 0 WHERE taskId=".$taskId;
     $result = $dbcnx->query($query);
     echo $result;
 }

@@ -1,4 +1,4 @@
-<div class="header" ng-init="initFirst()">
+<div class="header">
 	<span>{{ semester }}</span>&nbsp<span class="ntuweek">{{ ntuWeek }}</span>&nbsp
 	<button type="button" class="btn btn-default" ng-click="prevWeek()"><i class="fa fa-chevron-left" aria-hidden="true" ></i></button>
 	<button type="button" class="btn btn-default" ng-click="nextWeek()"><i class="fa fa-chevron-right" aria-hidden="true" ></i></button>
@@ -10,7 +10,6 @@
       <li><a href="#/monthly">Month</a></li>
       <li><a href="#/weekly">Week</a></li>
     </ul>
-    <button class="btn btn-primary btn-sm" ng-click="enable()" id="enable"><span ng-if="!enabled">Enable</span><span ng-if="enabled">Disable</span> Drag & Drop Mode</button> 
   </div>
 </nav>
 <table class="table table-bordered">
@@ -20,12 +19,12 @@
                 {{ daysInWeek[$index] }} &nbsp<span class="date">{{day}}</span>
             </td>
     </tr>
-		<tr ng-repeat="hour in hours">
-			<td class="hoursColumntd" dragula='"first-bag"' dragula-scope="$parent">{{hour}}</td>
-			<td class="daysWeekly" ng-class="{'daysWeekly':!isCurrentDay(day), 'currentDayinWeek':isCurrentDay(day)}" id="{{ hour }}{{ day }}" ng-repeat="day in daysArray" ng-click="convert(day,hour)" dragula='"first-bag"' dragula-scope="$parent">
+		<tr ng-repeat="hour in hours" droppable drop="handleDrop" bin="hour">
+			<td class="hoursColumntd" ng-class="{'night':isNight(hour), 'morning':!isNight(hour)}" dragula='"first-bag"' dragula-scope="$parent">{{hour}}<i class="fa fa-moon-o" aria-hidden="true" ng-if="isNight(hour)"></i></td>
+			<td class="daysWeekly" ng-class="{'daysWeekly':!isCurrentDay(day), 'currentDayinWeek':isCurrentDay(day)}" id="{{ hour }}{{ day }}" ng-repeat="day in daysArray track by $index" ng-click="convert(day,hour)" dragula='"first-bag"' dragula-scope="$parent">
             <ul
             class="list-group fa-ul" 
-            ng-repeat="task in tasks | filter:day" 
+            ng-repeat="task in tasks | filter:filterDay(day)" 
             ng-switch="task.taskType"
             dragula='"first-bag"'
             >
@@ -35,9 +34,10 @@
                 ng-if="check1(task.startTime,hour)"
                 ng-switch-when="urgent" 
                 ng-style="{height: getStyle(task.duration)}" 
-                ng-click="disable($event, task.taskId)" 
+                ng-click="disable($event, task.taskId, task.done)" 
                 uib-popover-template="popover.templateUrl" 
-                popover-placement="left-top">
+                popover-placement="top"
+                popover-trigger="click">
                     <i class="fa-li fa fa-star" aria-hidden="true"></i><span class="taskname">{{task.taskName}}</span>
                     <span id="trash" ng-click="deleteTask(task.taskId, $event)" ng-if="!enabled"><i class="fa fa-trash" aria-hidden="true"></i></span>
                 </li>
@@ -47,9 +47,10 @@
                 ng-if="check1(task.startTime,hour)"
                 ng-switch-when="important" 
                 ng-style="{height: getStyle(task.duration)}" 
-                ng-click="disable($event, task.taskId)" 
+                ng-click="disable($event, task.taskId, task.done)" 
                 uib-popover-template="popover.templateUrl" 
-                popover-placement="left-top">
+                popover-placement="top"
+                popover-trigger="click">
                     <i class="fa-li fa fa-exclamation-circle" aria-hidden="true"></i><span class="taskname">{{task.taskName}}</span>
                     <span id="trash" ng-click="deleteTask(task.taskId, $event)" ng-if="!enabled"><i class="fa fa-trash" aria-hidden="true"></i></span>
                 </li>
@@ -59,9 +60,10 @@
                 ng-if="check1(task.startTime,hour)"
                 ng-switch-when="normal" 
                 ng-style="{height: getStyle(task.duration)}" 
-                ng-click="disable($event, task.taskId)" 
+                ng-click="disable($event, task.taskId, task.done)" 
                 uib-popover-template="popover.templateUrl" 
-                popover-placement="left-top">
+                popover-placement="top"
+                popover-trigger="click">
                     <i class="fa-li fa fa-circle-o" aria-hidden="true"></i><span class="taskname">{{task.taskName}}</span> 
                     <span id="trash" ng-click="deleteTask(task.taskId, $event)" ng-if="!enabled"><i class="fa fa-trash" aria-hidden="true"></i></span>
                 </li>
@@ -70,7 +72,7 @@
 		</tr>
 </table>
 <script type="text/ng-template" id="popoverTemplate.html">
-    <div class="form-group" id="formcomplete">
+    <div class="form-group" id="formcomplete" style="width: 145px;">
         <label ng-click="$event.stopPropagation()" id="test"><input type="checkbox" ng-click="check($event, task.taskId)" ng-checked="getChecked(task.done)"><span id="markcomplete">&nbspMark Task Completed</span></label><br><br>
         <input type="submit" class="btn btn-success btn-sm" ng-click="markcomplete($event, task.taskId)" value="Save" id="completebtn">
     </div>
