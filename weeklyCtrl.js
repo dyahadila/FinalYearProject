@@ -1,4 +1,4 @@
-angular.module('app').controller('weeklyCtrl', function($scope, $interval, $uibModal, moment, $http, mainFactory,dragulaService, loginFactory, sessionService, Notification){
+angular.module('app').controller('weeklyCtrl', function($scope, $interval, $uibModal, moment, $http, mainFactory, loginFactory, sessionService, Notification){
 
 $scope.tasks = [];
 
@@ -85,8 +85,6 @@ $scope.disable = function(event, taskId, done){
 	}
 }
 $scope.handleDrop = function(item, bin){
-	console.log(item);
-	console.log(bin);
 	var taskId = item.toString();
 	var hourday = bin.toString();
 	var index;
@@ -98,41 +96,17 @@ $scope.handleDrop = function(item, bin){
 	var day = hourday.substring(index+2);
 	var hour = hourday.substring(0,index+2);
 		$http({
-		method: 'POST',
-		url:  'moveTask.php',
-	    data: {
-	        taskId : taskId,
-			hour : hour,
-			day : day
-		}
-	});
+			method: 'POST',
+			url:  'moveTask.php',
+		    data: {
+		        taskId : taskId,
+				hour : hour,
+				day : day
+			}
+		}).then(function(data){
+			$scope.getTasks();
+		});
 }
-dragulaService.options($scope, 'first-bag', {
-    revertOnSpill: true
-});
-$scope.$on('first-bag.drop', function (e, el, target, source, draggable){
-	if ( !draggable ) e.stopPropagation();
-	$scope.trash = false;
-	var taskId = parseInt(el.attr('id'));
-	var hourday = target.attr('id').toString();
-	var index;
-	if(hourday.indexOf("AM") !== -1){
-		index = hourday.indexOf("AM");
-	} else if(hourday.indexOf("PM") !== -1){
-		index = hourday.indexOf("PM");
-	}
-	var day = hourday.substring(index+2);
-	var hour = hourday.substring(0,index+2);
-		$http({
-		method: 'POST',
-		url:  'moveTask.php',
-	    data: {
-	        taskId : taskId,
-			hour : hour,
-			day : day
-		}
-	});
-});
 $scope.deleteTask = function(taskId, e){
 	e.stopPropagation();
 	e.preventDefault();
@@ -232,7 +206,7 @@ $scope.prevWeek = function(){
 	$scope.getTasks();
 }
 $scope.convert = function(date, time){
-	$scope.originalDate = moment(new Date(date)).format('DD MMMM YYYY');
+	$scope.originalDate = moment(new Date(date)).format('DD MMM YYYY');
 	$scope.taskdate = moment(new Date(date)).format('YYYY-MM-DD');
 	$scope.dateToInput = date;
 	for(var i = 0; i<time.length; i++){

@@ -19,14 +19,14 @@
                 {{ daysInWeek[$index] }} &nbsp<span class="date">{{day}}</span>
             </td>
     </tr>
-		<tr ng-repeat="hour in hours" droppable drop="handleDrop" bin="hour">
-			<td class="hoursColumntd" ng-class="{'night':isNight(hour), 'morning':!isNight(hour)}" dragula='"first-bag"' dragula-scope="$parent">{{hour}}<i class="fa fa-moon-o" aria-hidden="true" ng-if="isNight(hour)"></i></td>
-			<td class="daysWeekly" ng-class="{'daysWeekly':!isCurrentDay(day), 'currentDayinWeek':isCurrentDay(day)}" id="{{ hour }}{{ day }}" ng-repeat="day in daysArray track by $index" ng-click="convert(day,hour)" dragula='"first-bag"' dragula-scope="$parent">
+		<tr ng-repeat="hour in hours">
+			<td class="hoursColumntd" ng-class="{'night':isNight(hour), 'morning':!isNight(hour)}">{{hour}}<i class="fa fa-moon-o" aria-hidden="true" ng-if="isNight(hour)"></i></td>
+			<td class="daysWeekly" ng-class="{'daysWeekly':!isCurrentDay(day), 'currentDayinWeek':isCurrentDay(day)}" id="{{ hour }}{{ day }}" ng-repeat="day in daysArray track by $index" ng-click="convert(day,hour)" droppable drop="handleDrop" bin="day">
             <ul
             class="list-group fa-ul" 
             ng-repeat="task in tasks | filter:filterDay(day)" 
             ng-switch="task.taskType"
-            dragula='"first-bag"'
+            draggable item="task" id="{{ task.taskId }}"
             >
                 <li 
                 ng-class="{'list-group-item urgent' : task.done==0, 'list-group-item disabled' : task.done==1}"
@@ -79,7 +79,7 @@
 </script>
 <script type="text/ng-template" id="weeklyModal.html">
 	<div class="modal-header">
-        <h3>{{originalDate}}</h3>
+        <h3>{{originalDate}} at {{starttime}}</h3>
     </div>
     <div class="modal-body">
     <div class="form-group">
@@ -105,8 +105,7 @@
                 </div>
             </div>
         	<input type="hidden" name="taskdate" id="taskdate" class="form-control" data-ng-model="taskdate">
-        	<label for="startTime">Start time:</label>
-        	<input type="test" name="startTime" id="startTime" class="form-control" ng-model="starttime"><br>
+        	<input type="hidden" name="startTime" id="startTime" class="form-control" ng-model="starttime">
         	<label id="duration">Duration:</label><br>
             <div class="col-md-5">
         	<div class="input-group">    

@@ -17,8 +17,6 @@ $scope.getActivityMonth = function(){
 	});
 }
 $scope.handleDrop = function(item, bin){
-	console.log(item);
-	console.log(bin);
 	var activityDate = bin.toString();
 	var activityID = item.toString();
 	var currentMonthAndYear = moment($scope.currentMoment).format('YYYY-MM');

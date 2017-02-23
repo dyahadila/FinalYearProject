@@ -166,6 +166,9 @@ body{
 .list-group-item.list-group-item-success:hover, .list-group-item.list-group-item-info:hover{
 	cursor: move;
 }
+.list-group-item.urgent:hover, .list-group-item.important:hover, .list-group-item.normal:hover{
+	cursor: move;
+}
 #trash{
 	float: right;
 }
