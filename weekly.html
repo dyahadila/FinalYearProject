@@ -112,9 +112,25 @@
         		<span class="input-group-addon" ng-click="subDuration()" id="sizing-addon2"><i class="glyphicon glyphicon-minus"></i></span>
                 <input type="text" id="durationHour" class="form-control" ng-model="durationDisplay" aria-describedby="sizing-addon2">
                 <span class="input-group-addon" ng-click="addDuration()" id="sizing-addon2"><i class="glyphicon glyphicon-plus"></i></span>
-			</div></div><br>
+			</div></div><br><br>
+            <div class="input-group"> 
+            <label for="notification">Notification in advance:</label>
+            <div class="form-group">
+              <select class="form-control col-xs-1 id="notification">
+                <option>1</option>
+                <option>5</option>
+                <option>15</option>
+                <option>30</option>
+              </select>
+              <select class="form-control col-xs-1 id="notification">
+                <option>Minute</option>
+                <option>Hour</option>
+                <option>Day</option>
+                <option>Week</option>
+                <option>Month</option>
+              </select>
+            </div></div><br>
         </form>
-        
     </div>
     </div>
     <div class="modal-footer">
