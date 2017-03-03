@@ -246,7 +246,7 @@ nav .form-control{
 	color: white;
 	padding-bottom: 0px;
 	position: absolute;
-	width: 152px;
+	width: 100%;
 	display:inline-block;
 }
 .list-group-item.important{
@@ -254,13 +254,13 @@ nav .form-control{
 	color: white;
 	padding-bottom: 0px;
 	position: absolute;
-	width: 152px;
+	width: 100%;
 	display:inline-block;
 }
 .list-group-item.disabled{
 	padding-bottom: 0px;
 	position: absolute;
-	width: 152px;
+	width: 100%;
 	display:inline-block;
 }
 .list-group-item.normal{
@@ -268,8 +268,11 @@ nav .form-control{
 	color: white;
 	padding-bottom: 0px;
 	position: absolute;
-	width: 152px;
+	width: 100%;
 	display:inline-block;
+}
+.list-group.fa-ul{
+	position: relative;
 }
 #markcomplete{
 	font-weight: normal;
