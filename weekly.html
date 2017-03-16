@@ -21,12 +21,12 @@
     </tr>
 		<tr ng-repeat="hour in hours">
 			<td class="hoursColumntd" ng-class="{'night':isNight(hour), 'morning':!isNight(hour)}">{{hour}}<i class="fa fa-moon-o" aria-hidden="true" ng-if="isNight(hour)"></i></td>
-			<td class="daysWeekly" ng-class="{'daysWeekly':!isCurrentDay(day), 'currentDayinWeek':isCurrentDay(day)}" id="{{ hour }}{{ day }}" ng-repeat="day in daysArray track by $index" ng-click="convert(day,hour)" droppable drop="handleDrop" bin="day">
+			<td class="daysWeekly" ng-class="{'daysWeekly':!isCurrentDay(day), 'currentDayinWeek':isCurrentDay(day)}" id="{{ hour }}{{ day }}" ng-repeat="day in daysArray" ng-click="convert(day,hour)" droppable drop="handleDrop" bin="day">
             <ul
             class="list-group fa-ul" 
             ng-repeat="task in tasks | filter:filterDay(day)" 
             ng-switch="task.taskType"
-            draggable item="task" id="{{ task.taskId }}"
+            draggable item="task" id="{{ task.taskId }}_task"
             >
                 <li 
                 ng-class="{'list-group-item urgent' : task.done==0, 'list-group-item disabled' : task.done==1}"
@@ -39,7 +39,8 @@
                 popover-placement="top"
                 popover-trigger="click">
                     <i class="fa-li fa fa-star" aria-hidden="true"></i><span class="taskname">{{task.taskName}}</span>
-                    <span id="trash" ng-click="deleteTask(task.taskId, $event)" ng-if="!enabled"><i class="fa fa-trash" aria-hidden="true"></i></span>
+                    <span id="trash" ng-click="deleteTask(task.taskId, $event)" ng-if="!enabled"><i class="fa fa-trash" aria-hidden="true"></i></span><br>
+                    <span class=taskTime>{{ task.startTime }}</span>
                 </li>
                 <li 
                 ng-class="{'list-group-item important' : task.done==0, 'list-group-item disabled' : task.done==1}"
@@ -52,7 +53,8 @@
                 popover-placement="top"
                 popover-trigger="click">
                     <i class="fa-li fa fa-exclamation-circle" aria-hidden="true"></i><span class="taskname">{{task.taskName}}</span>
-                    <span id="trash" ng-click="deleteTask(task.taskId, $event)" ng-if="!enabled"><i class="fa fa-trash" aria-hidden="true"></i></span>
+                    <span id="trash" ng-click="deleteTask(task.taskId, $event)" ng-if="!enabled"><i class="fa fa-trash" aria-hidden="true"></i></span><br>
+                    <span class=taskTime>{{ task.startTime }}</span>
                 </li>
                 <li 
                 ng-class="{'list-group-item normal' : task.done==0, 'list-group-item disabled' : task.done==1}"
@@ -65,9 +67,32 @@
                 popover-placement="top"
                 popover-trigger="click">
                     <i class="fa-li fa fa-circle-o" aria-hidden="true"></i><span class="taskname">{{task.taskName}}</span> 
-                    <span id="trash" ng-click="deleteTask(task.taskId, $event)" ng-if="!enabled"><i class="fa fa-trash" aria-hidden="true"></i></span>
+                    <span id="trash" ng-click="deleteTask(task.taskId, $event)" ng-if="!enabled"><i class="fa fa-trash" aria-hidden="true"></i></span><br>
+                    <span class=taskTime>{{ task.startTime }}</span>
                 </li>
             </ul>
+            <ul class="list-group" ng-repeat="activity in activitiesmonth | filter:filterDate(day)" ng-switch="activity.activityType" draggable item="activity" id="{{ activity.activityID }}_activity">
+                        <li class="list-group-item list-group-item-warning week" ng-switch-when="Quiz and Exam" id="{{ activity.activityID }}" ng-click="editActicity($event)" ng-if="check2(activity.activityTime,hour)">
+                            <span class="trash" ng-click="deleteActivity(activity.activityID, $event)"><i class="fa fa-trash" aria-hidden="true"></i></span>
+                            <span class="activitynames">{{activity.activityName}}</span><br>
+                            <span class="datetimes">{{activity.activityTime}}</span>
+                        </li>
+                        <li class="list-group-item list-group-item-danger week" ng-switch-when="Assignment Deadline" id="{{ activity.activityID }}" ng-click="editActicity($event)" ng-if="check2(activity.activityTime,hour)">
+                            <span class="trash" ng-click="deleteActivity(activity.activityID, $event)"><i class="fa fa-trash" aria-hidden="true"></i></span>
+                            <span class="activitynames">{{activity.activityName}}</span><br>
+                            <span class="datetimes">{{activity.activityTime}}</span>
+                        </li>
+                        <li class="list-group-item list-group-item-success week" ng-switch-when="CCA Activity" id="{{ activity.activityID }}" ng-click="editActicity($event)" ng-if="check2(activity.activityTime,hour)">
+                            <span class="trash" ng-click="deleteActivity(activity.activityID, $event)"><i class="fa fa-trash" aria-hidden="true"></i></span>
+                            <span class="activitynames">{{activity.activityName}}</span><br>
+                            <span class="datetimes">{{activity.activityTime}}</span>
+                        </li>
+                        <li class="list-group-item list-group-item-info week" ng-switch-when="Leisure Activities and Other" id="{{ activity.activityID }}" ng-click="editActicity($event)" ng-if="check2(activity.activityTime,hour)">
+                            <span class="trash" ng-click="deleteActivity(activity.activityID, $event)"><i class="fa fa-trash" aria-hidden="true"></i></span>
+                            <span class="activitynames">{{activity.activityName}}</span><br>
+                            <span class="datetimes">{{activity.activityTime}}</span>
+                        </li>
+                    </ul>
             </td>
 		</tr>
 </table>
@@ -76,6 +101,8 @@
         <label ng-click="$event.stopPropagation()" id="test"><input type="checkbox" ng-click="check($event, task.taskId)" ng-checked="getChecked(task.done)"><span id="markcomplete">&nbspMark Task Completed</span></label><br><br>
         <input type="submit" class="btn btn-success btn-sm" ng-click="markcomplete($event, task.taskId)" value="Save" id="completebtn">
     </div>
+</script>
+<script type="text/ng-template" id="editActivity.html">
 </script>
 <script type="text/ng-template" id="weeklyModal.html">
 	<div class="modal-header">
@@ -113,23 +140,6 @@
                 <input type="text" id="durationHour" class="form-control" ng-model="durationDisplay" aria-describedby="sizing-addon2">
                 <span class="input-group-addon" ng-click="addDuration()" id="sizing-addon2"><i class="glyphicon glyphicon-plus"></i></span>
 			</div></div><br><br>
-            <div class="input-group"> 
-            <label for="notification">Notification in advance:</label>
-            <div class="form-group">
-              <select class="form-control col-xs-1 id="notification">
-                <option>1</option>
-                <option>5</option>
-                <option>15</option>
-                <option>30</option>
-              </select>
-              <select class="form-control col-xs-1 id="notification">
-                <option>Minute</option>
-                <option>Hour</option>
-                <option>Day</option>
-                <option>Week</option>
-                <option>Month</option>
-              </select>
-            </div></div><br>
         </form>
     </div>
     </div>

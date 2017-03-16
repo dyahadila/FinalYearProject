@@ -1,6 +1,7 @@
 angular.module('app').controller('weeklyCtrl', function($scope, $interval, $uibModal, moment, $http, mainFactory, loginFactory, sessionService, Notification){
 
 $scope.tasks = [];
+$scope.activitiesmonth = [];
 
 $scope.logout = function(){
 	loginFactory.logout();
@@ -13,6 +14,7 @@ $scope.isCurrentDay = function(day){
 		return false;
 	}
 }
+
 $interval(function(){ 
 	 for(var i = 0; i<$scope.tasks.length; i++){
 	 	if(moment($scope.tasks[i].taskDate + " " + $scope.tasks[i].startTime, "DD MMM YYYY HH:mm A").subtract(15, 'minute').isSameOrBefore(moment()) && 
@@ -30,6 +32,27 @@ $interval(function(){
 				      }
 				}).then(function (data) {
 					$scope.getTasks();
+			});
+	 	}
+	 }
+	 	}, 5000);
+$interval(function(){ 
+	 for(var i = 0; i<$scope.activitiesmonth.length; i++){
+	 	if(moment($scope.activitiesmonth[i].activityFullDate + " " + $scope.activitiesmonth[i].activityTime, "YYYY-MM-DD HH:mm A").subtract(15, 'minute').isSameOrBefore(moment()) && 
+	 		moment().isBefore(moment($scope.activitiesmonth[i].activityFullDate + " " + $scope.activitiesmonth[i].activityTime, "YYYY-MM-DD HH:mm A")) && 
+	 		$scope.activitiesmonth[i].notified == 0){
+	 		var msg = "You have upcoming " + $scope.activitiesmonth[i].activityName + " on " + $scope.activitiesmonth[i].activityFullDate + " at " + $scope.activitiesmonth[i].activityTime +"!";
+	 		var notified = true;
+	 		$scope.showNotif(msg);
+	 		$http({
+				method: 'POST',
+				url:  'notifiedmonth.php',
+		        data: {
+		        		activityID : $scope.activitiesmonth[i].activityID,
+				        notified : notified
+				      }
+				}).then(function (data) {
+					$scope.getActivityMonth();
 			});
 	 	}
 	 }
@@ -58,19 +81,38 @@ $scope.isNight = function(hour){
 }
 $scope.initFirst=function(){
 	$scope.thisWeek = moment();
-	$scope.currentMoment = $scope.thisWeek;
+	$scope.currentMoment;
+	if(sessionService.get('currentWeek')){
+		$scope.currentMoment = moment(sessionService.get('currentWeek'));
+	} else{
+		sessionService.set('currentWeek', $scope.thisWeek);
+		$scope.currentMoment = moment(sessionService.get('currentWeek'));
+	}
 	$scope.daysInWeek = ['Mon', 'Tue', 'Wed','Thu', 'Fri', 'Sat', 'Sun'];
-	var weekInYear = $scope.currentMoment.week();
+	
 	var dayInWeek = $scope.currentMoment.day();
 	$scope.daysArray = getDaysArray(dayInWeek, $scope.currentMoment);
+	var weekInYear = moment($scope.daysArray[$scope.daysArray.length-2]).week();
 	$scope.semester = mainFactory.semester(weekInYear);
 	$scope.ntuWeek = mainFactory.ntuWeek(weekInYear, $scope.currentMoment);
 	$scope.hours = ['12:00 PM', '12:30 PM', '1:00 PM', '1:30 PM', '2:00 PM', '2:30 PM', '3:00 PM', '3:30 PM', '4:00 PM',
 	'4:30 PM', '5:00 PM', '5:30 PM','6:00 PM', '6:30 PM','7:00 PM', '7:30 PM','8:00 PM', '8:30 PM', '9:00 PM', '9:30 PM',
 	'10:00 PM', '10:30 PM','11:00 PM','11:30 PM', '12:00 AM', '12:30 AM', '1:00 AM', '1:30 AM', '2:00 AM', '2:30 AM',
 	'3:00 AM', '3:30 AM', '4:00 AM', '4:30 AM', '5:00 AM', '5:30 AM', '6:00 AM', '6:30 AM', '7:00 AM', '7:30 AM', '8:00 AM',
-	 '9:00 AM', '9:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM'];
+	 '8:30 AM', '9:00 AM', '9:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM'];
 	 $scope.getTasks();
+	 $scope.getActivityMonth();
+}
+$scope.editActivity = function(e){
+	e.stopPropagation();
+	var modalInstance = $uibModal.open({
+		templateUrl: 'editActivity.html',
+	    controller: editActivityCtrl,
+	    scope: $scope
+	});
+}
+var editActivityCtrl = function($scope, $uibModalInstance, $http){
+	
 }
 $scope.popover = {
 	templateUrl : 'popoverTemplate.html'
@@ -85,7 +127,7 @@ $scope.disable = function(event, taskId, done){
 	}
 }
 $scope.handleDrop = function(item, bin){
-	var taskId = item.toString();
+	var Id = item.toString();
 	var hourday = bin.toString();
 	var index;
 	if(hourday.indexOf("AM") !== -1){
@@ -95,6 +137,8 @@ $scope.handleDrop = function(item, bin){
 	}
 	var day = hourday.substring(index+2);
 	var hour = hourday.substring(0,index+2);
+	if(Id.indexOf("_task") != -1){
+		var taskId = item.toString().substring(0, item.toString().indexOf("_task"));
 		$http({
 			method: 'POST',
 			url:  'moveTask.php',
@@ -106,6 +150,21 @@ $scope.handleDrop = function(item, bin){
 		}).then(function(data){
 			$scope.getTasks();
 		});
+	} else {
+		var activityId = item.toString().substring(0, item.toString().indexOf("_activity"));
+		var activityFullDate = moment(day).format("YYYY-MM-DD").toString();
+		$http({
+			method: 'POST',
+			url:  'moveActivityWeek.php',
+		    data: {
+		        activityID : activityId,
+				hour : hour,
+				date : activityFullDate
+			}
+		}).then(function(data){
+			$scope.getActivityMonth();
+		});
+	}
 }
 $scope.deleteTask = function(taskId, e){
 	e.stopPropagation();
@@ -122,6 +181,21 @@ $scope.deleteTask = function(taskId, e){
 		});
 	}
 	
+}
+$scope.deleteActivity = function(activityId, e){
+	e.stopPropagation();
+	e.preventDefault();
+	if(confirm("Are you sure you want to delete this activity?") == true){
+		$http({
+			method: 'POST',
+			url:  'deleteActivity.php',
+			data: {
+			     activityID : activityId
+			}
+		}).then(function (data,status){
+			$scope.getActivityMonth();
+		});
+	}
 }
 $scope.check = function(event, taskId){
 	event.stopPropagation();
@@ -187,19 +261,40 @@ $scope.getTasks = function(){
 }
 
 $scope.nextWeek = function(){
-	$scope.currentMoment = $scope.currentMoment.add(1, 'week');
-	var weekInYear = $scope.currentMoment.week();
+	sessionService.set('currentWeek', $scope.currentMoment.add(1, 'week'));
+	$scope.currentMoment = moment(sessionService.get('currentWeek'));
 	var dayInWeek = $scope.currentMoment.day();
+	var weekInYear;
+	if(dayInWeek == 0){
+		weekInYear = $scope.currentMoment.subtract(1, 'day').week();
+	} else{
+		weekInYear = $scope.currentMoment.week();
+	}
 	$scope.daysArray = getDaysArray(dayInWeek, $scope.currentMoment);
 	$scope.semester = mainFactory.semester(weekInYear);
 	$scope.ntuWeek = mainFactory.ntuWeek(weekInYear, $scope.currentMoment);
 	$scope.getTasks();
 }
-
+$scope.getActivityMonth = function(){
+	var userID = sessionService.get('user');
+	$http.get('getactivities.php', {
+		params: {
+			userID : userID
+		}
+	}).success(function (data,status) {
+  	    $scope.activitiesmonth = data;
+	});
+}
 $scope.prevWeek = function(){
-	$scope.currentMoment = $scope.currentMoment.subtract(1, 'week');
-	var weekInYear = $scope.currentMoment.week();
+	sessionService.set('currentWeek', $scope.currentMoment.subtract(1, 'week'));
+	$scope.currentMoment = moment(sessionService.get('currentWeek'));
 	var dayInWeek = $scope.currentMoment.day();
+	var weekInYear;
+	if(dayInWeek == 0){
+		weekInYear = $scope.currentMoment.subtract(1, 'day').week();
+	} else{
+		weekInYear = $scope.currentMoment.week();
+	}
 	$scope.daysArray = getDaysArray(dayInWeek, $scope.currentMoment);
 	$scope.semester = mainFactory.semester(weekInYear);
 	$scope.ntuWeek = mainFactory.ntuWeek(weekInYear, $scope.currentMoment);
@@ -284,13 +379,24 @@ $scope.filterDay = function(day) {
 		return task.taskDate == day;
 	};
 };
+$scope.filterDate = function(day) {
+	return function(activity){
+		var activityFullDate = moment(activity.activityFullDate).format('DD MMM YYYY').toString();
+		return activityFullDate == day;
+	};
+};
 $scope.check1 = function(time, hour){
 	if(hour.toString() === time.toString()){
 		return true;
 	}	 
 }
+$scope.check2 = function(time, hour){
+	if(hour.toString() === time.toString()){
+		return true;
+	}
+}
 $scope.getStyle = function(duration){
-	var height = (((duration*2)-1)*50)+35;
+	var height = (((duration*2)-1)*50)+50;
 	return height.toString() +'px';
 }
 $scope.initFirst();

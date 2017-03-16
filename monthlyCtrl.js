@@ -1,12 +1,12 @@
-angular.module('app').controller('monthlyCtrl',['$scope', '$interval', '$timeout', '$uibModal', 'moment', '$filter', '$http', 'mainFactory','loginFactory', 'sessionService',
- function($scope, $interval, $timeout, $uibModal, moment, $filter, $http, mainFactory, loginFactory, sessionService){
+angular.module('app').controller('monthlyCtrl',['$scope', '$interval', '$timeout', '$uibModal', 'moment', '$filter', '$http', 'mainFactory','loginFactory', 'sessionService', 'Notification',
+ function($scope, $interval, $timeout, $uibModal, moment, $filter, $http, mainFactory, loginFactory, sessionService, Notification){
 $scope.logout = function(){
 	loginFactory.logout();
 }
 $scope.activitiesmonth = [];
 $scope.getActivityMonth = function(){
 	var userID = sessionService.get('user');
-	var matcher = moment().format('YYYY-MM');
+	$scope.matcher = $scope.currentMoment.format('YYYY-MM');
 	$http.get('getactivitymonth.php', {
 		params: {
 			matcher : $scope.matcher,
@@ -16,6 +16,32 @@ $scope.getActivityMonth = function(){
   	    $scope.activitiesmonth = data;
 	});
 }
+$interval(function(){ 
+	 for(var i = 0; i<$scope.activitiesmonth.length; i++){
+	 	if(moment($scope.activitiesmonth[i].activityFullDate + " " + $scope.activitiesmonth[i].activityTime, "YYYY-MM-DD HH:mm A").subtract(15, 'minute').isSameOrBefore(moment()) && 
+	 		moment().isBefore(moment($scope.activitiesmonth[i].activityFullDate + " " + $scope.activitiesmonth[i].activityTime, "YYYY-MM-DD HH:mm A")) && 
+	 		$scope.activitiesmonth[i].notified == 0){
+	 		var msg = "You have upcoming " + $scope.activitiesmonth[i].activityName + " on " + $scope.activitiesmonth[i].activityFullDate + " at " + $scope.activitiesmonth[i].activityTime +"!";
+	 		var notified = true;
+	 		$scope.showNotif(msg);
+	 		$http({
+				method: 'POST',
+				url:  'notifiedmonth.php',
+		        data: {
+		        		activityID : $scope.activitiesmonth[i].activityID,
+				        notified : notified
+				      }
+				}).then(function (data) {
+					$scope.getActivityMonth();
+			});
+	 	}
+	 }
+	 	}, 5000);
+
+$scope.showNotif = function(msg){
+	Notification({message: msg});
+}
+
 $scope.handleDrop = function(item, bin){
 	var activityDate = bin.toString();
 	var activityID = item.toString();
@@ -46,7 +72,13 @@ $scope.filterDate = function(day) {
 $scope.initFirst=function()
 {	
 	$scope.thisMonth = moment();
-	$scope.currentMoment = $scope.thisMonth;
+	$scope.currentMoment;
+	if(sessionService.get('currentMonth')){
+		$scope.currentMoment = moment(sessionService.get('currentMonth'));
+	} else{
+		sessionService.set('currentMonth', $scope.thisMonth);
+		$scope.currentMoment = moment(sessionService.get('currentMonth'));
+	}
 	$scope.printedMonth = $scope.currentMoment.format('MMMM YYYY');
 	$scope.startAndEndArray = getMonthDetails();
 	$scope.daysArray = getDateAndWeekArray($scope.startAndEndArray[0], $scope.startAndEndArray[2], $scope.startAndEndArray[3], $scope.currentMoment)[0];
@@ -56,9 +88,9 @@ $scope.initFirst=function()
 	$scope.daysInWeek = ['Mon', 'Tue', 'Wed','Thu', 'Fri', 'Sat', 'Sun'];
 	$scope.months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September',
 	'October', 'November', 'December'];
-	$scope.years = [$scope.currentMoment.format('YYYY')];
+	$scope.years = [moment().format('YYYY')];
 	for(var i = 1; i<=4; i++){
-		$scope.years.push(moment($scope.currentMoment).add(i, 'year').format('YYYY'));
+		$scope.years.push(moment().add(i, 'year').format('YYYY'));
 	}
 	$scope.getActivityMonth();
 }
@@ -212,7 +244,8 @@ return returnArray;
 }
 
 $scope.previousMonth = function() {
-	$scope.currentMoment = $scope.currentMoment.subtract(1, 'month');
+	sessionService.set('currentMonth', $scope.currentMoment.subtract(1, 'month'));
+	$scope.currentMoment = moment(sessionService.get('currentMonth'));
 	$scope.printedMonth = $scope.currentMoment.format('MMMM YYYY');
 	$scope.startAndEndArray = getMonthDetails();
 	$scope.daysArray = getDateAndWeekArray($scope.startAndEndArray[0], $scope.startAndEndArray[2], $scope.startAndEndArray[3], $scope.currentMoment)[0];
@@ -223,7 +256,8 @@ $scope.previousMonth = function() {
 }
 
 $scope.nextMonth = function() {
-	$scope.currentMoment = $scope.currentMoment.add(1, 'month');
+	sessionService.set('currentMonth', $scope.currentMoment.add(1, 'month'));
+	$scope.currentMoment = moment(sessionService.get('currentMonth'));
 	$scope.printedMonth = $scope.currentMoment.format('MMMM YYYY');
 	$scope.startAndEndArray = getMonthDetails();
 	$scope.daysArray = getDateAndWeekArray($scope.startAndEndArray[0], $scope.startAndEndArray[2], $scope.startAndEndArray[3], $scope.currentMoment)[0];
@@ -264,16 +298,24 @@ var ModalInstanceCtrl = function ($scope, $uibModalInstance, $http) {
   	$scope.changed = function () {
     	$scope.hour = $filter('date')($scope.mytime, 'shortTime');
   	};
-
 	$scope.cancel = function () {
 		$uibModalInstance.close();
 	};
-
 	$scope.saveActivity = function(){
-		var matcher = moment().format('YYYY-MM');
 		if($scope.activityname == null || $scope.activitytype == null){
 			alert("Please complete the form!");
 		} else {
+			var same = false;
+			for(var i =0; i<$scope.activitiesmonth.length; i++){
+				var obj = $scope.activitiesmonth[i];
+				var time = obj.activityTime;
+				var day = obj.activityFullDate;
+				if($scope.hour == time && $scope.momentClicked == day){
+					same = true;
+					break;
+				}
+			} 
+			if(!same){
 			var userID = sessionService.get('user');
 			$http({
 		        method: 'POST',
@@ -289,7 +331,11 @@ var ModalInstanceCtrl = function ($scope, $uibModalInstance, $http) {
 					$scope.getActivityMonth();
 				});
 				$uibModalInstance.close();
+			} else{
+				alert("You another activity in the same timing!");
 			}
+			}
+			
 		}
 }
 var convertDateTimeFormat = function(date, time){
@@ -328,6 +374,5 @@ $scope.deleteActivity = function(activityId, e){
 		});
 	}
 }
-
 $scope.initFirst();
 	}]);

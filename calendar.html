@@ -8,9 +8,9 @@
 <div class="container-fluid">
 <form class="navbar-form navbar-left" ng-submit="submit()">
 	<label>Go To :</label>
-    <select class="form-control" ng-options="item for item in months" ng-model="selectedMonth" placeholder="Month" ng-change="submit()">
+    <select class="form-control" ng-options="item for item in months" ng-model="selectedMonth" ng-change="submit()">
 	</select>
-	<select class="form-control" ng-options="item for item in years" ng-model="selectedYear" placeholder="Year" ng-change="submit()">
+	<select class="form-control" ng-options="item for item in years" ng-model="selectedYear" ng-change="submit()">
 	</select>
 </form>
     <ul class="nav navbar-nav navbar-right">
@@ -20,79 +20,72 @@
   </div>
 </nav>
 <table class="table table-bordered">
-		<thead>
-			<tr>
-				<th id="acadWeekHeader">{{semester}}</th>
-				<th id="daysHeader" ng-repeat="day in daysInWeek">
-					{{ day }}
-				</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr class="days" ng-repeat="week in daysArray">
-				<td class="acadWeek">{{weeksArray[$index]}}</td>
-				<td  ng-repeat="day in week" ng-class="{'greyOut':isNumber(day), 'highlight':isString(day), 'currentDay':isCurrentDay(day)}" ng-click="check(day)" id="{{day}}" droppable drop="handleDrop" bin="day">
-					<div ng-show="isString(day) == true" class="day">{{day}}</div>
-					<div ng-show="isNumber(day) == true" class="day">{{day}}</div>
-					<ul class="list-group" ng-repeat="activity in activitiesmonth | filter:filterDate(day)" ng-switch="activity.activityType" draggable item="activity" id="{{ activity.activityID }}">
-					    <li class="list-group-item list-group-item-warning" ng-switch-when="Quiz and Exam" id="{{ activity.activityID }}" ng-click="click()">
-					    	<span clas="trash" ng-click="deleteActivity(activity.activityID, $event)"><i class="fa fa-trash" aria-hidden="true"></i></span>
-							<span class="activitynames">{{activity.activityName}}</span><br>
-							<span class="datetimes">{{activity.activityTime}}</span>
-						</li>
-						<li class="list-group-item list-group-item-danger" ng-switch-when="Assignment Deadline" id="{{ activity.activityID }}" ng-click="click()">
-							<span clas="trash" ng-click="deleteActivity(activity.activityID, $event)"><i class="fa fa-trash" aria-hidden="true"></i></span>
-							<span class="activitynames">{{activity.activityName}}</span><br>
-							<span class="datetimes">{{activity.activityTime}}</span>
-						</li>
-						<li class="list-group-item list-group-item-success" ng-switch-when="CCA Activity" id="{{ activity.activityID }}" ng-click="click()">
-							<span clas="trash" ng-click="deleteActivity(activity.activityID, $event)"><i class="fa fa-trash" aria-hidden="true"></i></span>
-							<span class="activitynames">{{activity.activityName}}</span><br>
-							<span class="datetimes">{{activity.activityTime}}</span>
-						</li>
-						<li class="list-group-item list-group-item-info" ng-switch-when="Leisure Activities and Other" id="{{ activity.activityID }}" ng-click="click()">
-							<span clas="trash" ng-click="deleteActivity(activity.activityID, $event)"><i class="fa fa-trash" aria-hidden="true"></i></span>
-							<span class="activitynames">{{activity.activityName}}</span><br>
-							<span class="datetimes">{{activity.activityTime}}</span>
-						</li>
-			        </ul>
-				</td>
-			</tr>
-		</tbody>
+	<thead>
+		<tr>
+			<th id="acadWeekHeader">{{semester}}</th>
+			<th id="daysHeader" ng-repeat="day in daysInWeek">
+				{{ day }}
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr class="days" ng-repeat="week in daysArray">
+			<td class="acadWeek">{{weeksArray[$index]}}</td>
+			<td  ng-repeat="day in week" ng-class="{'greyOut':isNumber(day), 'highlight':isString(day), 'currentDay':isCurrentDay(day)}" ng-click="check(day)" id="{{day}}" droppable drop="handleDrop" bin="day">
+				<div ng-show="isString(day) == true" class="day">{{day}}</div>
+				<div ng-show="isNumber(day) == true" class="day">{{day}}</div>
+				<ul class="list-group" ng-repeat="activity in activitiesmonth | filter:filterDate(day)" ng-switch="activity.activityType" draggable item="activity" id="{{ activity.activityID }}">
+				    <li class="list-group-item list-group-item-warning" ng-switch-when="Quiz and Exam" id="{{ activity.activityID }}" ng-click="click()">
+					   	<span clas="trash" ng-click="deleteActivity(activity.activityID, $event)"><i class="fa fa-trash" aria-hidden="true"></i></span>
+						<span class="activitynames">{{activity.activityName}}</span><br>
+						<span class="datetimes">{{activity.activityTime}}</span>
+					</li>
+					<li class="list-group-item list-group-item-danger" ng-switch-when="Assignment Deadline" id="{{ activity.activityID }}" ng-click="click()">
+						<span clas="trash" ng-click="deleteActivity(activity.activityID, $event)"><i class="fa fa-trash" aria-hidden="true"></i></span>
+						<span class="activitynames">{{activity.activityName}}</span><br>
+						<span class="datetimes">{{activity.activityTime}}</span>
+					</li>
+					<li class="list-group-item list-group-item-success" ng-switch-when="CCA Activity" id="{{ activity.activityID }}" ng-click="click()">
+						<span clas="trash" ng-click="deleteActivity(activity.activityID, $event)"><i class="fa fa-trash" aria-hidden="true"></i></span>
+						<span class="activitynames">{{activity.activityName}}</span><br>
+						<span class="datetimes">{{activity.activityTime}}</span>
+					</li>
+					<li class="list-group-item list-group-item-info" ng-switch-when="Leisure Activities and Other" id="{{ activity.activityID }}" ng-click="click()">
+						<span clas="trash" ng-click="deleteActivity(activity.activityID, $event)"><i class="fa fa-trash" aria-hidden="true"></i></span>
+						<span class="activitynames">{{activity.activityName}}</span><br>
+						<span class="datetimes">{{activity.activityTime}}</span>
+					</li>
+			    </ul>
+			</td>
+		</tr>
+	</tbody>
 </table>
+
 <script type="text/ng-template" id="myModalContent.html">
     <div class="modal-header">
         <h3>{{printDate}}</h3>
     </div>
-        <div class="modal-body">
-        	<form id="addActivityMonthForm">
-        		  <div class="form-group">
-				      <label for="activityname">Activity name:</label>
-				      <input type="text" class="form-control" data-ng-model="activityname" name="activityName" id="activityName" placeholder="Enter activity name"><br>
-				      <label for="sel1">Select activity type:</label>
-				      <select class="form-control" id="sel1" data-ng-model="activitytype" name="activityType">
-				        <option><span class="quizexam">Quiz and Exam</span></option>
-				        <option><span class="assignment">Assignment Deadline</span></option>
-				        <option><span class="cca">CCA Activity</span></option>
-				        <option><span class="other">Leisure Activities and Other</span></option>
-				      </select><br>
-				      <input type="hidden" class="form-control" id="date" data-ng-model="momentClicked" name="date">
-			      	  <label for="time">Time:</label>
-			      	  <div class="input-group bootstrap-timepicker timepicker">
-	            		  <input id="timepicker1" type="text" class="form-control input-small" data-ng-model="hour" name="time">
-	            		  <span class="input-group-addon">
-	            		  	<i class="glyphicon glyphicon-time" popover-placement="right" uib-popover-template="popover.html"></i>
-	            		  </span>
-       				  </div>
-		          </div>
-            </form>
-      	</div>
-        <div class="modal-footer">
+    <div class="modal-body">
+       	<form id="addActivityMonthForm">
+       		  <div class="form-group">
+			      <label for="activityname">Activity name:</label>
+			      <input type="text" class="form-control" data-ng-model="activityname" name="activityName" id="activityName" placeholder="Enter activity name"><br>
+			      <label for="sel1">Select activity type:</label>
+			      <select class="form-control" id="sel1" data-ng-model="activitytype" name="activityType">
+			        <option><span class="quizexam">Quiz and Exam</span></option>
+			        <option><span class="assignment">Assignment Deadline</span></option>
+			        <option><span class="cca">CCA Activity</span></option>
+			        <option><span class="other">Leisure Activities and Other</span></option>
+			      </select><br>
+			      <input type="hidden" class="form-control" id="date" data-ng-model="momentClicked" name="date">
+		      	  <label for="time">Time:</label>
+		     	  <div class="timepicker" uib-timepicker data-ng-model="mytime" ng-change="changed()" hour-step="hstep" minute-step="mstep" show-meridian="ismeridian"></div>
+		       </div>
+        </form>
+    </div>
+     <div class="modal-footer">
 		<button type="submit" class="btn btn-success" ng-click="saveActivity()" id="save">Save</button>
         <button class="btn btn-warning" ng-click="cancel()" id="cancel">Close</button> 
-    	</div>
-        </div>
+   	</div>
 </script>
-<script type="text/ng-template" id="popover.html">
-	<div class="timepicker" uib-timepicker data-ng-model="$parent.mytime" ng-change="changed()" hour-step="hstep" minute-step="mstep" show-meridian="ismeridian"></div>
 </script>

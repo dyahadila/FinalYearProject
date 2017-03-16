@@ -124,6 +124,9 @@ body{
 	height: 75px;
 	line-height: 95px;
 }
+.trash{
+	float: right;
+}
 .timepicker{
 	width:150px;
 }
@@ -173,7 +176,7 @@ body{
 	float: right;
 }
 .daysWeekly{
-	height: 50px;
+	height: 62px;
 	width: 10%;
 	background-color: white;
 	border: 1px solid black;
@@ -315,4 +318,9 @@ nav .form-control{
 .morning{
 	background-color: white;
 	color: black;
+}
+.taskTime{
+	float: left;
+	margin-left: 10px;
+	font-size: 10px;
 }
