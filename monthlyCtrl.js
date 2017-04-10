@@ -18,7 +18,7 @@ $scope.getActivityMonth = function(){
 }
 $interval(function(){ 
 	 for(var i = 0; i<$scope.activitiesmonth.length; i++){
-	 	if(moment($scope.activitiesmonth[i].activityFullDate + " " + $scope.activitiesmonth[i].activityTime, "YYYY-MM-DD HH:mm A").subtract(15, 'minute').isSameOrBefore(moment()) && 
+	 	if(moment($scope.activitiesmonth[i].activityFullDate + " " + $scope.activitiesmonth[i].activityTime, "YYYY-MM-DD HH:mm A").subtract(30, 'minute').isSameOrBefore(moment()) && 
 	 		moment().isBefore(moment($scope.activitiesmonth[i].activityFullDate + " " + $scope.activitiesmonth[i].activityTime, "YYYY-MM-DD HH:mm A")) && 
 	 		$scope.activitiesmonth[i].notified == 0){
 	 		var msg = "You have upcoming " + $scope.activitiesmonth[i].activityName + " on " + $scope.activitiesmonth[i].activityFullDate + " at " + $scope.activitiesmonth[i].activityTime +"!";
@@ -106,6 +106,7 @@ $scope.submit = function(){
 		$scope.weeksArray = getDateAndWeekArray($scope.startAndEndArray[0], $scope.startAndEndArray[2], $scope.startAndEndArray[3], $scope.currentMoment)[1];
 		$scope.semester = getDateAndWeekArray($scope.startAndEndArray[0], $scope.startAndEndArray[2], $scope.startAndEndArray[3], $scope.currentMoment)[2];
 		$scope.matcher = $scope.currentMoment.format('YYYY-MM');
+		$scope.getActivityMonth();
 	}
 }
 
@@ -374,5 +375,58 @@ $scope.deleteActivity = function(activityId, e){
 		});
 	}
 }
+
+$scope.clickActivity = function(e, ID, name, type, time){
+	e.stopPropagation();
+	$scope.ID = ID;
+	$scope.name = name;
+	$scope.type = type;
+	$scope.edittime = time;
+	var modalInstance = $uibModal.open({
+			templateUrl: 'editActivity.html',
+			controller: editActivityCtrl,
+			scope: $scope
+		});
+}
+ var editActivityCtrl = function($scope, $uibModalInstance, $http){
+ 	var hour = $scope.edittime.substring(0, $scope.edittime.indexOf(":"));
+ 	var minute = $scope.edittime.substring($scope.edittime.indexOf(":")+1, $scope.edittime.length);
+ 	
+	$scope.mytime = new Date().setHours(parseInt(hour),parseInt(minute),0,0);
+	$scope.mstep = 30;
+	$scope.hstep = 1;
+  	$scope.ismeridian = true;
+  	$scope.hour = $filter('date')($scope.mytime, 'shortTime');
+	$scope.activities;
+
+  	$scope.changed = function () {
+    	$scope.hour = $filter('date')($scope.mytime, 'shortTime');
+    	console.log($scope.hour);
+  	};
+	$scope.save = function(){
+		if($scope.name == null || $scope.type == null){
+			alert("Please complete the form!");
+		} else {
+			$http({
+		        method: 'POST',
+		        url:  'editActivity.php',
+		        data: {
+		        	activityname : $scope.name,
+		            activitytype : $scope.type,
+		            time : $scope.hour,
+		            userID : $scope.ID
+		        }
+				}).success(function (response, data) {
+					console.log(response);
+					$scope.getActivityMonth();
+				});
+				$uibModalInstance.close();
+		}
+	}
+	 	$scope.cancel = function () {
+		$uibModalInstance.close();
+	};
+ }
+
 $scope.initFirst();
 	}]);

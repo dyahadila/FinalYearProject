@@ -17,7 +17,7 @@ $scope.isCurrentDay = function(day){
 
 $interval(function(){ 
 	 for(var i = 0; i<$scope.tasks.length; i++){
-	 	if(moment($scope.tasks[i].taskDate + " " + $scope.tasks[i].startTime, "DD MMM YYYY HH:mm A").subtract(15, 'minute').isSameOrBefore(moment()) && 
+	 	if(moment($scope.tasks[i].taskDate + " " + $scope.tasks[i].startTime, "DD MMM YYYY HH:mm A").subtract(30, 'minute').isSameOrBefore(moment()) && 
 	 		moment().isBefore(moment($scope.tasks[i].taskDate + " " + $scope.tasks[i].startTime, "DD MMM YYYY HH:mm A")) && 
 	 		$scope.tasks[i].notified == 0){
 	 		var msg = "You have upcoming " + $scope.tasks[i].taskName + " on " + $scope.tasks[i].taskDate + " at " + $scope.tasks[i].startTime +"!";
@@ -38,7 +38,7 @@ $interval(function(){
 	 	}, 5000);
 $interval(function(){ 
 	 for(var i = 0; i<$scope.activitiesmonth.length; i++){
-	 	if(moment($scope.activitiesmonth[i].activityFullDate + " " + $scope.activitiesmonth[i].activityTime, "YYYY-MM-DD HH:mm A").subtract(15, 'minute').isSameOrBefore(moment()) && 
+	 	if(moment($scope.activitiesmonth[i].activityFullDate + " " + $scope.activitiesmonth[i].activityTime, "YYYY-MM-DD HH:mm A").subtract(30, 'minute').isSameOrBefore(moment()) && 
 	 		moment().isBefore(moment($scope.activitiesmonth[i].activityFullDate + " " + $scope.activitiesmonth[i].activityTime, "YYYY-MM-DD HH:mm A")) && 
 	 		$scope.activitiesmonth[i].notified == 0){
 	 		var msg = "You have upcoming " + $scope.activitiesmonth[i].activityName + " on " + $scope.activitiesmonth[i].activityFullDate + " at " + $scope.activitiesmonth[i].activityTime +"!";
@@ -396,7 +396,18 @@ $scope.check2 = function(time, hour){
 	}
 }
 $scope.getStyle = function(duration){
-	var height = (((duration*2)-1)*50)+50;
+	var height = 0;
+	if(duration == 0.5){
+		height = 42;
+	} else if(duration == 1){
+		height = 90;
+	} else if(duration == 1.5){
+		height = 135;
+	} else if(duration == 2){
+		height = 180;
+	} else {
+		height = (((duration*2)-1)*50)+52;
+	}
 	return height.toString() +'px';
 }
 $scope.initFirst();

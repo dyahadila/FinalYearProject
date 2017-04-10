@@ -21,7 +21,8 @@
     </tr>
 		<tr ng-repeat="hour in hours">
 			<td class="hoursColumntd" ng-class="{'night':isNight(hour), 'morning':!isNight(hour)}">{{hour}}<i class="fa fa-moon-o" aria-hidden="true" ng-if="isNight(hour)"></i></td>
-			<td class="daysWeekly" ng-class="{'daysWeekly':!isCurrentDay(day), 'currentDayinWeek':isCurrentDay(day)}" id="{{ hour }}{{ day }}" ng-repeat="day in daysArray" ng-click="convert(day,hour)" droppable drop="handleDrop" bin="day">
+			<td class="daysWeekly" ng-class="{'daysWeekly':!isCurrentDay(day), 'currentDayinWeek':isCurrentDay(day)}" 
+            id="{{ hour }}{{ day }}" ng-repeat="day in daysArray" ng-click="convert(day,hour)" droppable drop="handleDrop" bin="day">
             <ul
             class="list-group fa-ul" 
             ng-repeat="task in tasks | filter:filterDay(day)" 

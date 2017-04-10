@@ -1,19 +1,21 @@
-angular.module('app').factory('loginFactory', ['$http','$location', 'sessionService', function($http, $location, sessionService){
+angular.module('app').factory('loginFactory', ['$http','$location', 'sessionService', 
+	function($http, $location, sessionService){
 	var login = function(formData){
-	var $promise=$http.post('userlogin.php', formData);
-	$promise.then(function(msg){
-	var uid = msg.data;
-	if(uid) {
-		sessionService.set('user', uid);
-		$location.path("/monthly");
-	}
-	else {
-		alert("Invalid username or password!");
-		$location.path('/login');
-	}
-	});
+		var $promise=$http.post('userlogin.php', formData);
+		$promise.then(function(msg){
+			var uid = msg.data;
+			if(uid) {
+				sessionService.set('user', uid);
+				$location.path("/monthly");
+			}
+			else {
+				alert("Invalid username or password!");
+				$location.path('/login');
+			}
+		});
 	}
 	var logout = function(){
+		$http.post('logout.php');
 		sessionService.destroy('user');
 		$location.path("/login");
 	}
@@ -30,3 +32,4 @@ angular.module('app').factory('loginFactory', ['$http','$location', 'sessionServ
 		islogged: islogged
 	}
 }]);
+
